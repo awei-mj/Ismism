@@ -70,6 +70,7 @@ fn open(arg: Option<String>) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+//检查是否已存在
 fn add() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
@@ -83,18 +84,21 @@ fn list() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-//FIXME: "-f 4-2" returns every entry that contains "4-2"
 fn find(arg: Option<String>) -> Result<(), Box<dyn Error>> {
     let map = load()?;
     match arg {
-        Some(reg) => map.iter().filter(|(ism, _)| Regex::new(&reg).unwrap().is_match(ism)).for_each(|(ism, IsmInfo{title, url})| {
-            println!("{:16}{:3$}{:12}", ism, title, url, fmt_len(&title));
-        }),
+        Some(reg) => {
+            map.iter().filter(|(ism, _)| Regex::new(&format!("^{}$", reg)).unwrap()
+            .is_match(ism)).for_each(|(ism, IsmInfo{title, url})| {
+                println!("{:16}{:3$}{:12}", ism, title, url, fmt_len(&title));
+            })
+        },
         None => return Err("Argument missed. Please input a regex.".into()),
     }
     Ok(())
 }
 
+//检查是否不存在
 fn modify() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
