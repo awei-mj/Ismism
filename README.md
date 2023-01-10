@@ -13,7 +13,7 @@
 ## 使用
 
 1. **请先在deserialize()与serialize()函数中修改文件路径！！！**
-2. 前往[官网](https://www.rust-lang.org/zh-CN/tools/install)按照说明安装rust编译器(下个版本准备加入用户配置文件)
+2. 前往[官网](https://www.rust-lang.org/zh-CN/tools/install)按照说明安装rust编译器(下个版本准备加入用户配置文件可省去前两步)
 3. 在仓库根目录下运行 `cargo build --release`
 4. 前往target/release/ismism(.exe)找到可执行文件
 5. 运行 `ismism -h` 查看帮助
