@@ -1,4 +1,4 @@
-use std::{fs, env::Args, collections::BTreeMap, error::Error};
+use std::{io::{self, Write, BufWriter}, fs, env::Args, collections::{BTreeMap, btree_map::Entry::{Vacant, Occupied}}, error::Error};
 use webbrowser;
 use regex::Regex;
 
@@ -17,13 +17,12 @@ pub fn process(mut args: Args) -> Result<(), Box<dyn Error>> {
             "-a" => add()?,
             "-l" => list()?,
             "-f" => find(args.next())?,
-            "-m" => modify()?,
+            "-m" => modify(args.next())?,
             _ => return Err("Wrong arguments. Type 'ismism.exe -h' for help.".into()),
         }
     } else {
         return Err("Please input arguments. Type 'ismism.exe -h' for help.".into());
     }
-
     Ok(())
 }
 
@@ -36,6 +35,17 @@ fn load() -> Result<BTreeMap<String, IsmInfo>, Box<dyn Error>> {
             url: fields.next().unwrap().to_string()
         })
     }).collect())
+}
+
+fn write(map: BTreeMap<String, IsmInfo>) -> Result<(), Box<dyn Error>> {
+    let file = fs::File::options().write(true).truncate(true).open("D:/cmd/IsmBili")?;
+    let mut buf = BufWriter::with_capacity(0x100000 ,file); 
+    map.into_iter().for_each(|(ism, IsmInfo{title, url})| {
+        if let Err(err) = buf.write(format!("{} {} {}\n", ism, title, url).as_bytes()){
+            panic!("{}", err);
+        }
+    });
+    Ok(())
 }
 
 fn help() {
@@ -72,6 +82,31 @@ fn open(arg: Option<String>) -> Result<(), Box<dyn Error>> {
 
 //检查是否已存在
 fn add() -> Result<(), Box<dyn Error>> {
+    let mut map = load()?;
+    let mut ism = String::new();
+    let mut title = String::new();
+    let mut url = String::new();
+    print!("ismism: ");
+    io::stdout().flush().ok().expect("Could not flush stdout.");
+    io::stdin().read_line(&mut ism).unwrap();
+    print!("title: ");
+    io::stdout().flush().ok().expect("Could not flush stdout.");
+    io::stdin().read_line(&mut title).unwrap();
+    print!("BV: ");
+    io::stdout().flush().ok().expect("Could not flush stdout.");
+    io::stdin().read_line(&mut url).unwrap();
+    ism = ism.trim().to_string();
+    title = title.trim().to_string();
+    url = url.trim().to_string();
+    check_string(&ism)?;
+    check_string(&title)?;
+    check_string(&url)?;
+
+    match map.entry(ism){
+        Vacant(vacant) => { vacant.insert(IsmInfo { title, url }); () },
+        Occupied(_) => return Err("This entry already exists!".into()),
+    }
+    write(map)?;
     Ok(())
 }
 
@@ -99,7 +134,32 @@ fn find(arg: Option<String>) -> Result<(), Box<dyn Error>> {
 }
 
 //检查是否不存在
-fn modify() -> Result<(), Box<dyn Error>> {
+fn modify(arg: Option<String>) -> Result<(), Box<dyn Error>> {
+    let mut map = load()?;
+    match arg {
+        Some(ism) => {
+            if let Occupied(mut occupied) = map.entry(ism) {
+                let mut title = String::new();
+                let mut url = String::new();
+                print!("title: ");
+                io::stdout().flush().ok().expect("Could not flush stdout.");
+                io::stdin().read_line(&mut title).unwrap();
+                print!("BV: ");
+                io::stdout().flush().ok().expect("Could not flush stdout.");
+                io::stdin().read_line(&mut url).unwrap();
+                title = title.trim().to_string();
+                url = url.trim().to_string();
+                check_string(&title)?;
+                check_string(&url)?;
+                occupied.insert(IsmInfo { title, url });
+            } else {
+                return Err("This entry does not exist!".into());
+            }
+        },
+        None => return Err("Argument missed. Please input an ismism.".into()),
+    }
+
+    write(map)?;
     Ok(())
 }
 
@@ -107,6 +167,13 @@ fn fmt_len(str: &str) -> usize {
     // 一个中文字符占3字节
     // 中文字符数 = (b_len - u_len) / 2
     72 - (str.len() - str.chars().count()) / 2
+}
+
+fn check_string(str: &str) -> Result<(), Box<dyn Error>> {
+    if str.is_empty() {
+        return Err("Empty string!".into())
+    }
+    Ok(())
 }
 
 #[cfg(test)]
