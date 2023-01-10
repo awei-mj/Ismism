@@ -26,7 +26,7 @@ pub fn process(mut args: Args) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn load() -> Result<BTreeMap<String, IsmInfo>, Box<dyn Error>> {
+fn deserialize() -> Result<BTreeMap<String, IsmInfo>, Box<dyn Error>> {
     Ok(fs::read_to_string("D:/cmd/IsmBili")?.lines().map(|line| {
         let mut fields = line.split_whitespace();
         (fields.next().unwrap().to_string(),
@@ -37,7 +37,7 @@ fn load() -> Result<BTreeMap<String, IsmInfo>, Box<dyn Error>> {
     }).collect())
 }
 
-fn write(map: BTreeMap<String, IsmInfo>) -> Result<(), Box<dyn Error>> {
+fn serialize(map: BTreeMap<String, IsmInfo>) -> Result<(), Box<dyn Error>> {
     let file = fs::File::options().write(true).truncate(true).open("D:/cmd/IsmBili")?;
     let mut buf = BufWriter::with_capacity(0x100000 ,file); 
     map.into_iter().for_each(|(ism, IsmInfo{title, url})| {
@@ -60,7 +60,7 @@ fn help() {
 }
 
 fn open(arg: Option<String>) -> Result<(), Box<dyn Error>> {
-    let map = load()?;
+    let map = deserialize()?;
     match arg {
         Some(ism) => match map.get(&ism) {
             Some(info) => {
@@ -82,7 +82,7 @@ fn open(arg: Option<String>) -> Result<(), Box<dyn Error>> {
 
 //检查是否已存在
 fn add() -> Result<(), Box<dyn Error>> {
-    let mut map = load()?;
+    let mut map = deserialize()?;
     let mut ism = String::new();
     let mut title = String::new();
     let mut url = String::new();
@@ -106,12 +106,12 @@ fn add() -> Result<(), Box<dyn Error>> {
         Vacant(vacant) => { vacant.insert(IsmInfo { title, url }); () },
         Occupied(_) => return Err("This entry already exists!".into()),
     }
-    write(map)?;
+    serialize(map)?;
     Ok(())
 }
 
 fn list() -> Result<(), Box<dyn Error>> {
-    let map = load()?;
+    let map = deserialize()?;
     map.iter().for_each(|(ism, IsmInfo{title, url})| {
         println!("{:16}{:3$}{:12}", ism, title, url, fmt_len(&title));
     });
@@ -120,7 +120,7 @@ fn list() -> Result<(), Box<dyn Error>> {
 }
 
 fn find(arg: Option<String>) -> Result<(), Box<dyn Error>> {
-    let map = load()?;
+    let map = deserialize()?;
     match arg {
         Some(reg) => {
             map.iter().filter(|(ism, _)| Regex::new(&format!("^{}$", reg)).unwrap()
@@ -135,7 +135,7 @@ fn find(arg: Option<String>) -> Result<(), Box<dyn Error>> {
 
 //检查是否不存在
 fn modify(arg: Option<String>) -> Result<(), Box<dyn Error>> {
-    let mut map = load()?;
+    let mut map = deserialize()?;
     match arg {
         Some(ism) => {
             if let Occupied(mut occupied) = map.entry(ism) {
@@ -159,7 +159,7 @@ fn modify(arg: Option<String>) -> Result<(), Box<dyn Error>> {
         None => return Err("Argument missed. Please input an ismism.".into()),
     }
 
-    write(map)?;
+    serialize(map)?;
     Ok(())
 }
 

@@ -1,8 +1,18 @@
 # ISMISM
 
-用于快速打开主义主义视频的命令行程序
+基于rust的也许跨平台的快速打开主义主义视频的命令行程序
+
+## 兼容性
+
+|平台|是否兼容|
+|:-:|:-:|
+|Windows 10/11|是|
+|Linux(Ubuntu 22.04)|未测试|
+|MacOS|未测试|
 
 ## 使用
+
+**请先在deserialize()与serialize()函数中修改文件路径！！！**
 
 ismism.exe [args]
 
