@@ -1,6 +1,15 @@
-use std::{io::{self, Write, BufWriter}, fs, env::Args, collections::{BTreeMap, btree_map::Entry::{Vacant, Occupied}}, error::Error};
-use webbrowser;
+use std::{
+    collections::{
+        btree_map::Entry::{Occupied, Vacant},
+        BTreeMap,
+    },
+    env::Args,
+    error::Error,
+    fs,
+    io::{self, BufWriter, Write},
+};
 use regex::Regex;
+use webbrowser;
 
 struct IsmInfo {
     title: String,
@@ -27,21 +36,29 @@ pub fn process(mut args: Args) -> Result<(), Box<dyn Error>> {
 }
 
 fn deserialize() -> Result<BTreeMap<String, IsmInfo>, Box<dyn Error>> {
-    Ok(fs::read_to_string("D:/cmd/IsmBili")?.lines().map(|line| {
-        let mut fields = line.split_whitespace();
-        (fields.next().unwrap().to_string(),
-        IsmInfo {
-            title: fields.next().unwrap().to_string(),
-            url: fields.next().unwrap().to_string()
+    Ok(fs::read_to_string("D:/cmd/IsmBili")?
+        .lines()
+        .map(|line| {
+            let mut fields = line.split_whitespace();
+            (
+                fields.next().unwrap().to_string(),
+                IsmInfo {
+                    title: fields.next().unwrap().to_string(),
+                    url: fields.next().unwrap().to_string(),
+                },
+            )
         })
-    }).collect())
+        .collect())
 }
 
 fn serialize(map: BTreeMap<String, IsmInfo>) -> Result<(), Box<dyn Error>> {
-    let file = fs::File::options().write(true).truncate(true).open("D:/cmd/IsmBili")?;
-    let mut buf = BufWriter::with_capacity(0x100000 ,file); 
-    map.into_iter().for_each(|(ism, IsmInfo{title, url})| {
-        if let Err(err) = buf.write(format!("{} {} {}\n", ism, title, url).as_bytes()){
+    let file = fs::File::options()
+        .write(true)
+        .truncate(true)
+        .open("D:/cmd/IsmBili")?;
+    let mut buf = BufWriter::with_capacity(0x100000, file);     // 开启1M的buffer
+    map.into_iter().for_each(|(ism, IsmInfo { title, url })| {
+        if let Err(err) = buf.write(format!("{} {} {}\n", ism, title, url).as_bytes()) {
             panic!("{}", err);
         }
     });
@@ -66,13 +83,17 @@ fn open(arg: Option<String>) -> Result<(), Box<dyn Error>> {
             Some(info) => {
                 println!("Opening {}...", info.title);
                 //1-2开头的某几期未能上传b站
-                if info.url.starts_with("BV"){
+                if info.url.starts_with("BV") {
                     webbrowser::open(&format!("https://www.bilibili.com/video/{}", info.url))
                         .unwrap();
                 } else {
-                    webbrowser::open(&format!("https://www.qingting.fm/channels/283734/programs/{}", info.url)).unwrap();
+                    webbrowser::open(&format!(
+                        "https://www.qingting.fm/channels/283734/programs/{}",
+                        info.url
+                    ))
+                    .unwrap();
                 }
-            },
+            }
             None => return Err(format!("Didn't find {}.", ism).into()),
         },
         None => return Err("Argument missed. Please input an ismism.".into()),
@@ -80,7 +101,6 @@ fn open(arg: Option<String>) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-//检查是否已存在
 fn add() -> Result<(), Box<dyn Error>> {
     let mut map = deserialize()?;
     let mut ism = String::new();
@@ -102,8 +122,11 @@ fn add() -> Result<(), Box<dyn Error>> {
     check_string(&title)?;
     check_string(&url)?;
 
-    match map.entry(ism){
-        Vacant(vacant) => { vacant.insert(IsmInfo { title, url }); () },
+    match map.entry(ism) {
+        Vacant(vacant) => {
+            vacant.insert(IsmInfo { title, url });
+            ()
+        }
         Occupied(_) => return Err("This entry already exists!".into()),
     }
     serialize(map)?;
@@ -112,7 +135,7 @@ fn add() -> Result<(), Box<dyn Error>> {
 
 fn list() -> Result<(), Box<dyn Error>> {
     let map = deserialize()?;
-    map.iter().for_each(|(ism, IsmInfo{title, url})| {
+    map.iter().for_each(|(ism, IsmInfo { title, url })| {
         println!("{:16}{:3$}{:12}", ism, title, url, fmt_len(&title));
     });
     println!("{} entries in total.", map.len());
@@ -122,18 +145,17 @@ fn list() -> Result<(), Box<dyn Error>> {
 fn find(arg: Option<String>) -> Result<(), Box<dyn Error>> {
     let map = deserialize()?;
     match arg {
-        Some(reg) => {
-            map.iter().filter(|(ism, _)| Regex::new(&format!("^{}$", reg)).unwrap()
-            .is_match(ism)).for_each(|(ism, IsmInfo{title, url})| {
+        Some(reg) => map
+            .iter()
+            .filter(|(ism, _)| Regex::new(&format!("^{}$", reg)).unwrap().is_match(ism))
+            .for_each(|(ism, IsmInfo { title, url })| {
                 println!("{:16}{:3$}{:12}", ism, title, url, fmt_len(&title));
-            })
-        },
+            }),
         None => return Err("Argument missed. Please input a regex.".into()),
     }
     Ok(())
 }
 
-//检查是否不存在
 fn modify(arg: Option<String>) -> Result<(), Box<dyn Error>> {
     let mut map = deserialize()?;
     match arg {
@@ -155,7 +177,7 @@ fn modify(arg: Option<String>) -> Result<(), Box<dyn Error>> {
             } else {
                 return Err("This entry does not exist!".into());
             }
-        },
+        }
         None => return Err("Argument missed. Please input an ismism.".into()),
     }
 
@@ -171,13 +193,13 @@ fn fmt_len(str: &str) -> usize {
 
 fn check_string(str: &str) -> Result<(), Box<dyn Error>> {
     if str.is_empty() {
-        return Err("Empty string!".into())
+        return Err("Empty string!".into());
     }
     Ok(())
 }
 
 #[cfg(test)]
-mod tests{
+mod tests {
     use super::*;
 
     #[test]
