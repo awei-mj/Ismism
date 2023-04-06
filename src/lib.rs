@@ -1,14 +1,15 @@
+use regex::Regex;
 use std::{
     collections::{
         btree_map::Entry::{Occupied, Vacant},
         BTreeMap,
     },
-    env::Args,
+    env::{self, Args},
     error::Error,
     fs,
     io::{self, BufWriter, Write},
+    path::PathBuf,
 };
-use regex::Regex;
 use webbrowser;
 
 struct IsmInfo {
@@ -35,8 +36,15 @@ pub fn process(mut args: Args) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+fn data_path() -> Result<PathBuf, Box<dyn Error>> {
+    let mut exe_path = env::current_exe()?;
+    exe_path.pop();
+    exe_path.push("ismism.txt");
+    Ok(exe_path)
+}
+
 fn deserialize() -> Result<BTreeMap<String, IsmInfo>, Box<dyn Error>> {
-    Ok(fs::read_to_string("D:/cmd/IsmBili")?
+    Ok(fs::read_to_string(data_path()?)?
         .lines()
         .map(|line| {
             let mut fields = line.split_whitespace();
@@ -55,8 +63,8 @@ fn serialize(map: BTreeMap<String, IsmInfo>) -> Result<(), Box<dyn Error>> {
     let file = fs::File::options()
         .write(true)
         .truncate(true)
-        .open("D:/cmd/IsmBili")?;
-    let mut buf = BufWriter::with_capacity(0x100000, file);     // 开启1M的buffer
+        .open(data_path()?)?;
+    let mut buf = BufWriter::with_capacity(0x100000, file); // 开启1M的buffer
     map.into_iter().for_each(|(ism, IsmInfo { title, url })| {
         if let Err(err) = buf.write(format!("{} {} {}\n", ism, title, url).as_bytes()) {
             panic!("{}", err);
