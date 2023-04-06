@@ -34,6 +34,7 @@ $-2-1-4 相互性 BV1Z44y1H75A
 $-2-1-4p 对原因和实体的关系进行探索 BV1cq4y1t7TN
 $-2-1e 解读黑格尔《逻辑学》之现实性 BV1zF411J7Yc
 $-2-2 构思 BV1Cq4y1t7YE
+$-2-2-1 概念 BV12q4y1x72c
 $-2-2p 绝对者如何从因果性实体走向概念 BV1Pq4y1b7FX
 1 形而下学 BV1XL411x72W
 1-1 科学实在论 BV1vR4y1H78h
@@ -402,14 +403,17 @@ $-2-2p 绝对者如何从因果性实体走向概念 BV1Pq4y1b7FX
 4-4-4-4 再生 BV11Y41187nu
 4-4r 不可能的乌托邦 BV1qb4y1H77s
 4r 实践 BV1CL4y1W7hR
-SOL 逻辑学 BV1T3411Y7R5
+C1 预备部分--该体系的阶次关系；阶级物（1）--客体化的象征秩序 BV1Jy4y1d75q
+C1-1 平等物--对无产阶级施加物质性统治的统治性物质 BV1wd4y1n79F
+C2 什么是小资产阶级，小资如何克服自己的小资性，如何成为行动者 BV1Ng4y1H7kT
 CPR 纯粹理性批判 BV1aU4y1b7mX
+Classics 我的第二个体系--阶级学 BV1aR4y1a7Hw
 KongFu-1 海德格尔的神仙微操--从康德命题学到费希特知识学 BV1Ro4y1X7Sx
 KongFu-2 海德格尔的神仙微操--费希特的X是什么？ BV1CL411H7Sp
 KongFu-3 海德格尔的神仙微操--如何从"A=A"走向"我=我"走向"我存在"？ BV1sq4y1W7Df
+SOL 逻辑学 BV1T3411Y7R5
 STI 先验观念论体系 BV18L4y1E7qs
 ismism 总纲 BV1JT4y1K7dp
 ismismr 主义主义复习-从虚假的体系走向真正的体系 BV1jb4y1n7jt
 loveism 爱情大全 BV1Kt4y1z7WU
 veil 面纱 BV1Jp4y1471k
-$-2-2-1 概念 BV12q4y1x72c
