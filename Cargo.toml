@@ -8,5 +8,5 @@ authors = ["awei"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-regex = "^1.7"
-webbrowser = "^0.8.4"
+regex = "^1"
+webbrowser = "^1"
